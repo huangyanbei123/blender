@@ -90,6 +90,7 @@
 #include "GPU_draw.h"
 #include "GPU_select.h"
 #include "GPU_basic_shader.h"
+#include "GPU_legacy_stubs.h"
 #include "GPU_shader.h"
 #include "GPU_immediate.h"
 #include "GPU_immediate_util.h"
@@ -523,10 +524,10 @@ static void draw_xyz_wire(const float viewmat_local_unit[3][3], const float c[3]
 	/* TODO: recode this function for clarity once we're not in a hurry to modernize GL usage */
 
 #if 0
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, buffer);
+	oldEnableClientState(GL_VERTEX_ARRAY);
+	oldVertexPointer(3, GL_FLOAT, 0, buffer);
 	glDrawArrays(line_type, 0, n);
-	glDisableClientState(GL_VERTEX_ARRAY);
+	oldDisableClientState(GL_VERTEX_ARRAY);
 #endif
 }
 
@@ -952,7 +953,7 @@ void view3d_cached_text_draw_end(View3D *v3d, ARegion *ar, bool depth_write, flo
 		for (vos = g_v3d_strings[g_v3d_string_level]; vos; vos = vos->next) {
 			if (vos->sco[0] != IS_CLIPPED) {
 				if (col_pack_prev != vos->col.pack) {
-					//glColor3ubv(vos->col.ub);
+					//oldColor3ubv(vos->col.ub);
 					col_pack_prev = vos->col.pack;
 				}
 
@@ -1015,10 +1016,10 @@ static void drawcube_size(float size, unsigned pos)
 	const GLubyte indices[24] = {0,1,1,3,3,2,2,0,0,4,4,5,5,7,7,6,6,4,1,5,3,7,2,6};
 
 #if 0
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, verts);
+	oldEnableClientState(GL_VERTEX_ARRAY);
+	oldVertexPointer(3, GL_FLOAT, 0, verts);
 	glDrawRangeElements(GL_LINES, 0, 7, 24, GL_UNSIGNED_BYTE, indices);
-	glDisableClientState(GL_VERTEX_ARRAY);
+	oldDisableClientState(GL_VERTEX_ARRAY);
 #else
 	immBegin(GL_LINES, 24);
 	for (int i = 0; i < 24; ++i) {
@@ -2009,15 +2010,15 @@ static void drawcamera_stereo3d(
 
 	if (is_stereo3d_cameras) {
 		/* draw connecting lines */
-		glLineStipple(2, 0xAAAA);
-		glEnable(GL_LINE_STIPPLE);
+		oldLineStipple(2, 0xAAAA);
+		oldEnable(GL_LINE_STIPPLE);
 
 		immBegin(GL_LINES, 2);
 		immVertex3fv(pos, origin[0]);
 		immVertex3fv(pos, origin[1]);
 		immEnd();
 
-		glDisable(GL_LINE_STIPPLE);
+		oldDisable(GL_LINE_STIPPLE);
 	}
 
 	/* draw convergence plane */
@@ -2832,7 +2833,7 @@ static DMDrawOption draw_dm_edges_sel__setDrawOptions(void *userData, int index)
 
 	if (!BM_elem_flag_test(eed, BM_ELEM_HIDDEN)) {
 		if (eed == data->eed_act) {
-			glColor4ubv(data->actCol);
+			oldColor4ubv(data->actCol);
 		}
 		else {
 			if (BM_elem_flag_test(eed, BM_ELEM_SELECT)) {
@@ -2845,7 +2846,7 @@ static DMDrawOption draw_dm_edges_sel__setDrawOptions(void *userData, int index)
 			if (col[3] == 0)
 				return DM_DRAW_OPTION_SKIP;
 			
-			glColor4ubv(col);
+			oldColor4ubv(col);
 		}
 		return DM_DRAW_OPTION_NORMAL;
 	}
@@ -2913,14 +2914,14 @@ static void draw_dm_edges_sel_interp__setDrawInterpOptions(void *userData, int i
 	else {
 		unsigned char  col_blend[4];
 		interp_v4_v4v4_uchar(col_blend, col0, col1, t);
-		glColor4ubv(col_blend);
+		oldColor4ubv(col_blend);
 		data->lastCol = NULL;
 		return;
 	}
 
 	if (data->lastCol != col_pt) {
 		data->lastCol = col_pt;
-		glColor4ubv(col_pt);
+		oldColor4ubv(col_pt);
 	}
 }
 
@@ -2977,7 +2978,7 @@ static void draw_dm_edges_weight_interp__setDrawInterpOptions(void *userData, in
 		interp_v3_v3v3(col, col_v1, col_v2, t);
 	}
 
-	glColor3fv(col);
+	oldColor3fv(col);
 }
 
 static void draw_dm_edges_weight_interp(BMEditMesh *em, DerivedMesh *dm, const char weight_user)
@@ -3010,7 +3011,7 @@ static void draw_dm_edges_weight_interp(BMEditMesh *em, DerivedMesh *dm, const c
 		else {
 			copy_v3_v3(col, data.alert_color);
 		}
-		glColor3fv(col);
+		oldColor3fv(col);
 
 		dm->drawMappedEdgesInterp(
 		        dm,
@@ -3162,7 +3163,7 @@ static DMDrawOption draw_dm_faces_sel__setDrawOptions(void *userData, int index)
 	
 	if (!BM_elem_flag_test(efa, BM_ELEM_HIDDEN)) {
 		if (efa == data->efa_act) {
-			glColor4ubv(data->cols[2]);
+			oldColor4ubv(data->cols[2]);
 			return DM_DRAW_OPTION_STIPPLE;
 		}
 		else {
@@ -3173,7 +3174,7 @@ static DMDrawOption draw_dm_faces_sel__setDrawOptions(void *userData, int index)
 #endif
 			if (col[3] == 0)
 				return DM_DRAW_OPTION_SKIP;
-			glColor4ubv(col);
+			oldColor4ubv(col);
 			return DM_DRAW_OPTION_NORMAL;
 		}
 	}
@@ -3463,7 +3464,7 @@ static void draw_em_fancy_edges(BMEditMesh *em, Scene *scene, View3D *v3d,
 		}
 		else {
 			if (!sel_only) {
-				glColor4ubv(wireCol);
+				oldColor4ubv(wireCol);
 				draw_dm_edges(em, cageDM);
 			}
 		}
@@ -4049,7 +4050,7 @@ static void draw_em_fancy(Scene *scene, SceneLayer *sl, ARegion *ar, View3D *v3d
 
 				draw_dm_edges_seams(em, cageDM);
 
-				glColor3ub(0, 0, 0);
+				oldColor3ub(0, 0, 0);
 			}
 
 			if (me->drawflag & ME_DRAWSHARP) {
@@ -4058,7 +4059,7 @@ static void draw_em_fancy(Scene *scene, SceneLayer *sl, ARegion *ar, View3D *v3d
 
 				draw_dm_edges_sharp(em, cageDM);
 
-				glColor3ub(0, 0, 0);
+				oldColor3ub(0, 0, 0);
 			}
 
 #ifdef WITH_FREESTYLE
@@ -4068,7 +4069,7 @@ static void draw_em_fancy(Scene *scene, SceneLayer *sl, ARegion *ar, View3D *v3d
 
 				draw_dm_edges_freestyle(em, cageDM);
 
-				glColor3ub(0, 0, 0);
+				oldColor3ub(0, 0, 0);
 			}
 #endif
 
@@ -4215,7 +4216,7 @@ void draw_mesh_object_outline(View3D *v3d, Object *ob, DerivedMesh *dm, const un
 		glLineWidth(UI_GetThemeValuef(TH_OUTLINE_WIDTH) * 2.0f);
 		glDepthMask(GL_FALSE);
 
-		if (ob_wire_col) glColor4ubv(ob_wire_col);
+		if (ob_wire_col) oldColor4ubv(ob_wire_col);
 
 		/* if transparent, we cannot draw the edges for solid select... edges
 		 * have no material info. GPU_object_material_visible will skip the
@@ -4398,7 +4399,7 @@ static void draw_mesh_fancy(Scene *scene, SceneLayer *sl, ARegion *ar, View3D *v
 		if (draw_loose && !(draw_flags & DRAW_FACE_SELECT)) {
 			if ((v3d->flag2 & V3D_RENDER_OVERRIDE) == 0) {
 				if ((dflag & DRAW_CONSTCOLOR) == 0) {
-					glColor3ubv(ob_wire_col);
+					oldColor3ubv(ob_wire_col);
 				}
 				glLineWidth(1.0f);
 				dm->drawLooseEdges(dm);
@@ -4475,7 +4476,7 @@ static void draw_mesh_fancy(Scene *scene, SceneLayer *sl, ARegion *ar, View3D *v
 
 			if (!ob->sculpt && (v3d->flag2 & V3D_RENDER_OVERRIDE) == 0) {
 				if ((dflag & DRAW_CONSTCOLOR) == 0) {
-					glColor3ubv(ob_wire_col);
+					oldColor3ubv(ob_wire_col);
 				}
 				glLineWidth(1.0f);
 				dm->drawLooseEdges(dm);
@@ -4501,10 +4502,10 @@ static void draw_mesh_fancy(Scene *scene, SceneLayer *sl, ARegion *ar, View3D *v
 			if (is_obact && (ob->mode & OB_MODE_PARTICLE_EDIT)) {
 				float color[3];
 				ob_wire_color_blend_theme_id(ob_wire_col, TH_BACK, 0.15f, color);
-				glColor3fv(color);
+				oldColor3fv(color);
 			}
 			else {
-				glColor3ubv(ob_wire_col);
+				oldColor3ubv(ob_wire_col);
 			}
 		}
 
@@ -4533,7 +4534,7 @@ static void draw_mesh_fancy(Scene *scene, SceneLayer *sl, ARegion *ar, View3D *v
 	
 	if (is_obact && BKE_paint_select_vert_test(ob)) {
 		const bool use_depth = (v3d->flag & V3D_ZBUF_SELECT) != 0;
-		glColor3f(0.0f, 0.0f, 0.0f);
+		oldColor3f(0.0f, 0.0f, 0.0f);
 		glPointSize(UI_GetThemeValuef(TH_VERTEX_SIZE));
 
 		if (!use_depth) glDisable(GL_DEPTH_TEST);
@@ -4873,7 +4874,7 @@ static void draw_mesh_fancy_new(Scene *scene, SceneLayer *sl, ARegion *ar, View3
 		if (draw_loose && !(draw_flags & DRAW_FACE_SELECT)) {
 			if ((v3d->flag2 & V3D_RENDER_OVERRIDE) == 0) {
 				if ((dflag & DRAW_CONSTCOLOR) == 0) {
-					glColor3ubv(ob_wire_col);
+					oldColor3ubv(ob_wire_col);
 				}
 				glLineWidth(1.0f);
 				dm->drawLooseEdges(dm);
@@ -4951,7 +4952,7 @@ static void draw_mesh_fancy_new(Scene *scene, SceneLayer *sl, ARegion *ar, View3
 
 			if (!ob->sculpt && (v3d->flag2 & V3D_RENDER_OVERRIDE) == 0) {
 				if ((dflag & DRAW_CONSTCOLOR) == 0) {
-					glColor3ubv(ob_wire_col);
+					oldColor3ubv(ob_wire_col);
 				}
 				glLineWidth(1.0f);
 				dm->drawLooseEdges(dm);
@@ -4995,7 +4996,7 @@ static void draw_mesh_fancy_new(Scene *scene, SceneLayer *sl, ARegion *ar, View3
 #if 0 // (merwin) what is this for?
 	if (is_obact && BKE_paint_select_vert_test(ob)) {
 		const bool use_depth = (v3d->flag & V3D_ZBUF_SELECT) != 0;
-		glColor3f(0.0f, 0.0f, 0.0f);
+		oldColor3f(0.0f, 0.0f, 0.0f);
 		glPointSize(UI_GetThemeValuef(TH_VERTEX_SIZE));
 
 		if (!use_depth) glDisable(GL_DEPTH_TEST);
@@ -5334,17 +5335,17 @@ static void drawDispListsolid(ListBase *lb, Object *ob, const short UNUSED(dflag
 #if 0
 				/* for polys only one normal needed */
 				if (index3_nors_incr) {
-					glEnableClientState(GL_NORMAL_ARRAY);
-					glNormalPointer(GL_FLOAT, 0, dl->nors);
+					oldEnableClientState(GL_NORMAL_ARRAY);
+					oldNormalPointer(GL_FLOAT, 0, dl->nors);
 				}
 				else
-					glNormal3fv(ndata);
+					oldNormal3fv(ndata);
 #endif
 				drawDispListElem(false, (dl->rt & CU_SMOOTH), dl->verts, dl->nors, dl->nr, dl->index, dl->parts, ob_wire_col);
 
 #if 0
 				if (index3_nors_incr)
-					glDisableClientState(GL_NORMAL_ARRAY);
+					oldDisableClientState(GL_NORMAL_ARRAY);
 #endif
 
 				break;
@@ -6481,8 +6482,8 @@ static void draw_new_particle_system(Scene *scene, View3D *v3d, RegionView3D *rv
 			}
 			if ((dflag & DRAW_CONSTCOLOR) == 0) {
 				if (pdd->cdata) {
-					glEnableClientState(GL_COLOR_ARRAY);
-					glColorPointer(3, GL_FLOAT, 0, pdd->cdata);
+					oldEnableClientState(GL_COLOR_ARRAY);
+					oldColorPointer(3, GL_FLOAT, 0, pdd->cdata);
 				}
 			}
 #endif
@@ -7767,7 +7768,7 @@ static bool drawmball(Scene *scene, SceneLayer *sl, View3D *v3d, RegionView3D *r
 #if 0 /* no purpose? */
 	if (mb->editelems == NULL) {
 		if ((dflag & DRAW_CONSTCOLOR) == 0) {
-			glColor3ubv(ob_wire_col);
+			oldColor3ubv(ob_wire_col);
 		}
 	}
 #endif
@@ -8627,7 +8628,7 @@ void draw_object(Scene *scene, SceneLayer *sl, ARegion *ar, View3D *v3d, Base *b
 		draw_object_wire_color(scene, sl, base, _ob_wire_col);
 		ob_wire_col = _ob_wire_col;
 
-		//glColor3ubv(ob_wire_col);
+		//oldColor3ubv(ob_wire_col);
 	}
 
 	/* maximum drawtype */
@@ -9629,7 +9630,7 @@ static void draw_object_mesh_instance(Scene *scene, SceneLayer *sl, View3D *v3d,
 	}
 
 	if (dt <= OB_WIRE) {
-		glColor4ubv(ob_wire_col);
+		oldColor4ubv(ob_wire_col);
 		if (dm)
 			dm->drawEdges(dm, 1, 0);
 		else if (edm)

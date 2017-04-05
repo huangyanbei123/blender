@@ -57,6 +57,7 @@
 #include "GPU_draw.h"
 #include "GPU_basic_shader.h"
 #include "GPU_immediate.h"
+#include "GPU_legacy_stubs.h"
 
 #include "bmesh.h"
 
@@ -619,9 +620,9 @@ void GPU_vertex_setup(DerivedMesh *dm)
 	if (!gpu_buffer_setup_common(dm, GPU_BUFFER_VERTEX, false))
 		return;
 
-	glEnableClientState(GL_VERTEX_ARRAY);
+	oldEnableClientState(GL_VERTEX_ARRAY);
 	glBindBuffer(GL_ARRAY_BUFFER, dm->drawObject->points->id);
-	glVertexPointer(3, GL_FLOAT, 0, 0);
+	oldVertexPointer(3, GL_FLOAT, 0, 0);
 	
 	GLStates |= GPU_BUFFER_VERTEX_STATE;
 }
@@ -631,9 +632,9 @@ void GPU_normal_setup(DerivedMesh *dm)
 	if (!gpu_buffer_setup_common(dm, GPU_BUFFER_NORMAL, false))
 		return;
 
-	glEnableClientState(GL_NORMAL_ARRAY);
+	oldEnableClientState(GL_NORMAL_ARRAY);
 	glBindBuffer(GL_ARRAY_BUFFER, dm->drawObject->normals->id);
-	glNormalPointer(GL_SHORT, 4 * sizeof(short), 0);
+	oldNormalPointer(GL_SHORT, 4 * sizeof(short), 0);
 
 	GLStates |= GPU_BUFFER_NORMAL_STATE;
 }
@@ -643,9 +644,9 @@ void GPU_uv_setup(DerivedMesh *dm)
 	if (!gpu_buffer_setup_common(dm, GPU_BUFFER_UV, false))
 		return;
 
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	oldEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glBindBuffer(GL_ARRAY_BUFFER, dm->drawObject->uv->id);
-	glTexCoordPointer(2, GL_FLOAT, 0, 0);
+	oldTexCoordPointer(2, GL_FLOAT, 0, 0);
 
 	GLStates |= GPU_BUFFER_TEXCOORD_UNIT_0_STATE;
 }
@@ -655,12 +656,12 @@ void GPU_texpaint_uv_setup(DerivedMesh *dm)
 	if (!gpu_buffer_setup_common(dm, GPU_BUFFER_UV_TEXPAINT, false))
 		return;
 
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	oldEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glBindBuffer(GL_ARRAY_BUFFER, dm->drawObject->uv_tex->id);
-	glTexCoordPointer(2, GL_FLOAT, 4 * sizeof(float), 0);
+	oldTexCoordPointer(2, GL_FLOAT, 4 * sizeof(float), 0);
 	glClientActiveTexture(GL_TEXTURE2);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glTexCoordPointer(2, GL_FLOAT, 4 * sizeof(float), BUFFER_OFFSET(2 * sizeof(float)));
+	oldEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	oldTexCoordPointer(2, GL_FLOAT, 4 * sizeof(float), BUFFER_OFFSET(2 * sizeof(float)));
 	glClientActiveTexture(GL_TEXTURE0);
 
 	GLStates |= GPU_BUFFER_TEXCOORD_UNIT_0_STATE | GPU_BUFFER_TEXCOORD_UNIT_2_STATE;
@@ -689,18 +690,18 @@ void GPU_color_setup(DerivedMesh *dm, int colType)
 	if (!gpu_buffer_setup_common(dm, GPU_BUFFER_COLOR, update))
 		return;
 
-	glEnableClientState(GL_COLOR_ARRAY);
+	oldEnableClientState(GL_COLOR_ARRAY);
 	glBindBuffer(GL_ARRAY_BUFFER, dm->drawObject->colors->id);
-	glColorPointer(3, GL_UNSIGNED_BYTE, 0, 0);
+	oldColorPointer(3, GL_UNSIGNED_BYTE, 0, 0);
 
 	GLStates |= GPU_BUFFER_COLOR_STATE;
 }
 
 void GPU_buffer_bind_as_color(GPUBuffer *buffer)
 {
-	glEnableClientState(GL_COLOR_ARRAY);
+	oldEnableClientState(GL_COLOR_ARRAY);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer->id);
-	glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
+	oldColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
 
 	GLStates |= GPU_BUFFER_COLOR_STATE;
 }
@@ -714,9 +715,9 @@ void GPU_edge_setup(DerivedMesh *dm)
 	if (!gpu_buffer_setup_common(dm, GPU_BUFFER_VERTEX, false))
 		return;
 
-	glEnableClientState(GL_VERTEX_ARRAY);
+	oldEnableClientState(GL_VERTEX_ARRAY);
 	glBindBuffer(GL_ARRAY_BUFFER, dm->drawObject->points->id);
-	glVertexPointer(3, GL_FLOAT, 0, 0);
+	oldVertexPointer(3, GL_FLOAT, 0, 0);
 	
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, dm->drawObject->edges->id);
 
@@ -728,9 +729,9 @@ void GPU_uvedge_setup(DerivedMesh *dm)
 	if (!gpu_buffer_setup_common(dm, GPU_BUFFER_UVEDGE, false))
 		return;
 
-	glEnableClientState(GL_VERTEX_ARRAY);
+	oldEnableClientState(GL_VERTEX_ARRAY);
 	glBindBuffer(GL_ARRAY_BUFFER, dm->drawObject->uvedges->id);
-	glVertexPointer(2, GL_FLOAT, 0, 0);
+	oldVertexPointer(2, GL_FLOAT, 0, 0);
 	
 	GLStates |= GPU_BUFFER_VERTEX_STATE;
 }
@@ -832,18 +833,18 @@ void GPU_buffers_unbind(void)
 	int i;
 
 	if (GLStates & GPU_BUFFER_VERTEX_STATE)
-		glDisableClientState(GL_VERTEX_ARRAY);
+		oldDisableClientState(GL_VERTEX_ARRAY);
 	if (GLStates & GPU_BUFFER_NORMAL_STATE)
-		glDisableClientState(GL_NORMAL_ARRAY);
+		oldDisableClientState(GL_NORMAL_ARRAY);
 	if (GLStates & GPU_BUFFER_TEXCOORD_UNIT_0_STATE)
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		oldDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	if (GLStates & GPU_BUFFER_TEXCOORD_UNIT_2_STATE) {
 		glClientActiveTexture(GL_TEXTURE2);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		oldDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glClientActiveTexture(GL_TEXTURE0);
 	}
 	if (GLStates & GPU_BUFFER_COLOR_STATE)
-		glDisableClientState(GL_COLOR_ARRAY);
+		oldDisableClientState(GL_COLOR_ARRAY);
 	if (GLStates & GPU_BUFFER_ELEMENT_STATE)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -867,12 +868,12 @@ void GPU_color_switch(int mode)
 {
 	if (mode) {
 		if (!(GLStates & GPU_BUFFER_COLOR_STATE))
-			glEnableClientState(GL_COLOR_ARRAY);
+			oldEnableClientState(GL_COLOR_ARRAY);
 		GLStates |= GPU_BUFFER_COLOR_STATE;
 	}
 	else {
 		if (GLStates & GPU_BUFFER_COLOR_STATE)
-			glDisableClientState(GL_COLOR_ARRAY);
+			oldDisableClientState(GL_COLOR_ARRAY);
 		GLStates &= ~GPU_BUFFER_COLOR_STATE;
 	}
 }
@@ -1847,10 +1848,10 @@ void GPU_draw_pbvh_buffers(GPU_PBVH_Buffers *buffers, DMSetMaterial setMaterial,
 		/* weak inspection of bound options, should not be necessary ideally */
 		const int bound_options_old = GPU_basic_shader_bound_options();
 		int bound_options_new = 0;
-		glEnableClientState(GL_VERTEX_ARRAY);
+		oldEnableClientState(GL_VERTEX_ARRAY);
 		if (!wireframe) {
-			glEnableClientState(GL_NORMAL_ARRAY);
-			glEnableClientState(GL_COLOR_ARRAY);
+			oldEnableClientState(GL_NORMAL_ARRAY);
+			oldEnableClientState(GL_COLOR_ARRAY);
 
 			bound_options_new |= GPU_SHADER_USE_COLOR;
 		}
@@ -1883,12 +1884,12 @@ void GPU_draw_pbvh_buffers(GPU_PBVH_Buffers *buffers, DMSetMaterial setMaterial,
 
 			if (GLEW_ARB_draw_elements_base_vertex && drawall) {
 
-				glVertexPointer(3, GL_FLOAT, sizeof(VertexBufferFormat),
+				oldVertexPointer(3, GL_FLOAT, sizeof(VertexBufferFormat),
 				                offset + offsetof(VertexBufferFormat, co));
 				if (!wireframe) {
-					glNormalPointer(GL_SHORT, sizeof(VertexBufferFormat),
+					oldNormalPointer(GL_SHORT, sizeof(VertexBufferFormat),
 					                offset + offsetof(VertexBufferFormat, no));
-					glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexBufferFormat),
+					oldColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexBufferFormat),
 					               offset + offsetof(VertexBufferFormat, color));
 				}
 
@@ -1901,12 +1902,12 @@ void GPU_draw_pbvh_buffers(GPU_PBVH_Buffers *buffers, DMSetMaterial setMaterial,
 
 				/* we could optimize this to one draw call, but it would need more memory */
 				for (i = 0; i < last; i++) {
-					glVertexPointer(3, GL_FLOAT, sizeof(VertexBufferFormat),
+					oldVertexPointer(3, GL_FLOAT, sizeof(VertexBufferFormat),
 					                offset + offsetof(VertexBufferFormat, co));
 					if (!wireframe) {
-						glNormalPointer(GL_SHORT, sizeof(VertexBufferFormat),
+						oldNormalPointer(GL_SHORT, sizeof(VertexBufferFormat),
 						                offset + offsetof(VertexBufferFormat, no));
-						glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexBufferFormat),
+						oldColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexBufferFormat),
 						               offset + offsetof(VertexBufferFormat, color));
 					}
 
@@ -1922,13 +1923,13 @@ void GPU_draw_pbvh_buffers(GPU_PBVH_Buffers *buffers, DMSetMaterial setMaterial,
 		else if (buffers->tot_tri) {
 			int totelem = buffers->tot_tri * 3;
 
-			glVertexPointer(3, GL_FLOAT, sizeof(VertexBufferFormat),
+			oldVertexPointer(3, GL_FLOAT, sizeof(VertexBufferFormat),
 			                (void *)(base + offsetof(VertexBufferFormat, co)));
 
 			if (!wireframe) {
-				glNormalPointer(GL_SHORT, sizeof(VertexBufferFormat),
+				oldNormalPointer(GL_SHORT, sizeof(VertexBufferFormat),
 				                (void *)(base + offsetof(VertexBufferFormat, no)));
-				glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexBufferFormat),
+				oldColorPointer(3, GL_UNSIGNED_BYTE, sizeof(VertexBufferFormat),
 				               (void *)(base + offsetof(VertexBufferFormat, color)));
 			}
 
@@ -1945,10 +1946,10 @@ void GPU_draw_pbvh_buffers(GPU_PBVH_Buffers *buffers, DMSetMaterial setMaterial,
 		if (buffers->index_buf || do_fast)
 			GPU_buffer_unbind(do_fast ? buffers->index_buf_fast : buffers->index_buf, GPU_BINDING_INDEX);
 
-		glDisableClientState(GL_VERTEX_ARRAY);
+		oldDisableClientState(GL_VERTEX_ARRAY);
 		if (!wireframe) {
-			glDisableClientState(GL_NORMAL_ARRAY);
-			glDisableClientState(GL_COLOR_ARRAY);
+			oldDisableClientState(GL_NORMAL_ARRAY);
+			oldDisableClientState(GL_COLOR_ARRAY);
 		}
 
 		if (bound_options_new & ~bound_options_old) {

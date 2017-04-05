@@ -73,6 +73,7 @@
 #include "GPU_matrix.h"
 #include "GPU_immediate.h"
 #include "GPU_immediate_util.h"
+#include "GPU_legacy_stubs.h"
 #include "GPU_material.h"
 #include "GPU_viewport.h"
 
@@ -854,12 +855,12 @@ static void view3d_draw_background_world(Scene *scene, View3D *v3d, RegionView3D
 			* we can't get rid of the following code without a bigger refactor
 			* or we dropping this functionality. */
 
-			glBegin(GL_TRIANGLE_STRIP);
-			glVertex2f(-1.0f, -1.0f);
-			glVertex2f(1.0f, -1.0f);
-			glVertex2f(-1.0f, 1.0f);
-			glVertex2f(1.0f, 1.0f);
-			glEnd();
+			oldBegin(GL_TRIANGLE_STRIP);
+			oldVertex2f(-1.0f, -1.0f);
+			oldVertex2f(1.0f, -1.0f);
+			oldVertex2f(-1.0f, 1.0f);
+			oldVertex2f(1.0f, 1.0f);
+			oldEnd();
 
 			GPU_material_unbind(gpumat);
 			return;

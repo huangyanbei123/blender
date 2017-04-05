@@ -47,6 +47,7 @@
 
 #include "GPU_basic_shader.h"
 #include "GPU_glew.h"
+#include "GPU_legacy_stubs.h"
 #include "GPU_shader.h"
 
 /* State */
@@ -346,9 +347,9 @@ void GPU_basic_shader_colors(
 		zero_v3(gl_specular);
 	gl_specular[3] = 1.0f;
 
-	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, gl_diffuse);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, gl_specular);
-	glMateriali(GL_FRONT_AND_BACK, GL_SHININESS, CLAMPIS(shininess, 1, 128));
+	oldMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, gl_diffuse);
+	oldMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, gl_specular);
+	oldMateriali(GL_FRONT_AND_BACK, GL_SHININESS, CLAMPIS(shininess, 1, 128));
 }
 
 void GPU_basic_shader_light_set(int light_num, GPULightData *light)
@@ -374,37 +375,37 @@ void GPU_basic_shader_light_set(int light_num, GPULightData *light)
 			copy_v3_v3(position, light->position);
 			position[3] = 1.0f;
 		}
-		glLightfv(GL_LIGHT0 + light_num, GL_POSITION, position);
+		oldLightfv(GL_LIGHT0 + light_num, GL_POSITION, position);
 
 		/* energy */
 		copy_v3_v3(diffuse, light->diffuse);
 		copy_v3_v3(specular, light->specular);
 		diffuse[3] = 1.0f;
 		specular[3] = 1.0f;
-		glLightfv(GL_LIGHT0 + light_num, GL_DIFFUSE, diffuse);
-		glLightfv(GL_LIGHT0 + light_num, GL_SPECULAR, specular);
+		oldLightfv(GL_LIGHT0 + light_num, GL_DIFFUSE, diffuse);
+		oldLightfv(GL_LIGHT0 + light_num, GL_SPECULAR, specular);
 
 		/* attenuation */
 		if (light->type == GPU_LIGHT_SUN) {
-			glLightf(GL_LIGHT0 + light_num, GL_CONSTANT_ATTENUATION, 1.0f);
-			glLightf(GL_LIGHT0 + light_num, GL_LINEAR_ATTENUATION, 0.0f);
-			glLightf(GL_LIGHT0 + light_num, GL_QUADRATIC_ATTENUATION, 0.0f);
+			oldLightf(GL_LIGHT0 + light_num, GL_CONSTANT_ATTENUATION, 1.0f);
+			oldLightf(GL_LIGHT0 + light_num, GL_LINEAR_ATTENUATION, 0.0f);
+			oldLightf(GL_LIGHT0 + light_num, GL_QUADRATIC_ATTENUATION, 0.0f);
 		}
 		else {
-			glLightf(GL_LIGHT0 + light_num, GL_CONSTANT_ATTENUATION, light->constant_attenuation);
-			glLightf(GL_LIGHT0 + light_num, GL_LINEAR_ATTENUATION, light->linear_attenuation);
-			glLightf(GL_LIGHT0 + light_num, GL_QUADRATIC_ATTENUATION, light->quadratic_attenuation);
+			oldLightf(GL_LIGHT0 + light_num, GL_CONSTANT_ATTENUATION, light->constant_attenuation);
+			oldLightf(GL_LIGHT0 + light_num, GL_LINEAR_ATTENUATION, light->linear_attenuation);
+			oldLightf(GL_LIGHT0 + light_num, GL_QUADRATIC_ATTENUATION, light->quadratic_attenuation);
 		}
 
 		/* spot */
-		glLightfv(GL_LIGHT0 + light_num, GL_SPOT_DIRECTION, light->direction);
+		oldLightfv(GL_LIGHT0 + light_num, GL_SPOT_DIRECTION, light->direction);
 		if (light->type == GPU_LIGHT_SPOT) {
-			glLightf(GL_LIGHT0 + light_num, GL_SPOT_CUTOFF, light->spot_cutoff);
-			glLightf(GL_LIGHT0 + light_num, GL_SPOT_EXPONENT, light->spot_exponent);
+			oldLightf(GL_LIGHT0 + light_num, GL_SPOT_CUTOFF, light->spot_cutoff);
+			oldLightf(GL_LIGHT0 + light_num, GL_SPOT_EXPONENT, light->spot_exponent);
 		}
 		else {
-			glLightf(GL_LIGHT0 + light_num, GL_SPOT_CUTOFF, 180.0f);
-			glLightf(GL_LIGHT0 + light_num, GL_SPOT_EXPONENT, 0.0f);
+			oldLightf(GL_LIGHT0 + light_num, GL_SPOT_CUTOFF, 180.0f);
+			oldLightf(GL_LIGHT0 + light_num, GL_SPOT_EXPONENT, 0.0f);
 		}
 
 		GPU_MATERIAL_STATE.lights_enabled |= light_bit;
@@ -416,9 +417,9 @@ void GPU_basic_shader_light_set(int light_num, GPULightData *light)
 		/* glsl shader needs these zero to skip them */
 		const float zero[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
-		glLightfv(GL_LIGHT0 + light_num, GL_POSITION, zero);
-		glLightfv(GL_LIGHT0 + light_num, GL_DIFFUSE, zero);
-		glLightfv(GL_LIGHT0 + light_num, GL_SPECULAR, zero);
+		oldLightfv(GL_LIGHT0 + light_num, GL_POSITION, zero);
+		oldLightfv(GL_LIGHT0 + light_num, GL_DIFFUSE, zero);
+		oldLightfv(GL_LIGHT0 + light_num, GL_SPECULAR, zero);
 
 		glDisable(GL_LIGHT0 + light_num);
 	}

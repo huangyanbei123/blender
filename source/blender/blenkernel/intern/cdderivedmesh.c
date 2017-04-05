@@ -58,6 +58,7 @@
 #include "GPU_buffers.h"
 #include "GPU_draw.h"
 #include "GPU_glew.h"
+#include "GPU_legacy_stubs.h"
 #include "GPU_shader.h"
 #include "GPU_basic_shader.h"
 
@@ -829,14 +830,14 @@ static void cddm_draw_attrib_vertex(
 
 	/* vertex normal */
 	if (lnor) {
-		glNormal3fv(lnor);
+		oldNormal3fv(lnor);
 	}
 	else if (smoothnormal) {
-		glNormal3sv(mvert[index].no);
+		oldNormal3sv(mvert[index].no);
 	}
 
 	/* vertex coordinate */
-	glVertex3fv(mvert[index].co);
+	oldVertex3fv(mvert[index].co);
 }
 
 typedef struct {
@@ -896,7 +897,7 @@ static void cdDM_drawMappedFacesGLSL(
 		DEBUG_VBO("Using legacy code. cdDM_drawMappedFacesGLSL\n");
 		memset(&attribs, 0, sizeof(attribs));
 
-		glBegin(GL_TRIANGLES);
+		oldBegin(GL_TRIANGLES);
 
 		for (a = 0; a < tottri; a++, lt++) {
 			const MPoly *mp = &mpoly[lt->poly];
@@ -907,7 +908,7 @@ static void cdDM_drawMappedFacesGLSL(
 			new_matnr = mp->mat_nr;
 
 			if (new_matnr != matnr) {
-				glEnd();
+				oldEnd();
 
 				matnr = new_matnr;
 				do_draw = setMaterial(matnr + 1, &gattribs);
@@ -916,7 +917,7 @@ static void cdDM_drawMappedFacesGLSL(
 					DM_draw_attrib_vertex_uniforms(&attribs);
 				}
 
-				glBegin(GL_TRIANGLES);
+				oldBegin(GL_TRIANGLES);
 			}
 
 			if (!do_draw) {
@@ -937,13 +938,13 @@ static void cdDM_drawMappedFacesGLSL(
 
 			if (!smoothnormal) {
 				if (nors) {
-					glNormal3fv(nors[lt->poly]);
+					oldNormal3fv(nors[lt->poly]);
 				}
 				else {
 					/* TODO ideally a normal layer should always be available */
 					float nor[3];
 					normal_tri_v3(nor, mvert[vtri[0]].co, mvert[vtri[1]].co, mvert[vtri[2]].co);
-					glNormal3fv(nor);
+					oldNormal3fv(nor);
 				}
 			}
 			else if (lnors) {
@@ -956,7 +957,7 @@ static void cdDM_drawMappedFacesGLSL(
 			cddm_draw_attrib_vertex(&attribs, mvert, a, vtri[1], ltri[1], 1, ln2, smoothnormal);
 			cddm_draw_attrib_vertex(&attribs, mvert, a, vtri[2], ltri[2], 2, ln3, smoothnormal);
 		}
-		glEnd();
+		oldEnd();
 	}
 	else {
 		GPUMaterialConv *matconv;
@@ -1165,7 +1166,7 @@ static void cdDM_drawMappedFacesMat(
 
 	memset(&attribs, 0, sizeof(attribs));
 
-	glBegin(GL_TRIANGLES);
+	oldBegin(GL_TRIANGLES);
 
 	for (a = 0; a < tottri; a++, lt++) {
 		const MPoly *mp = &mpoly[lt->poly];
@@ -1178,13 +1179,13 @@ static void cdDM_drawMappedFacesMat(
 		new_matnr = mp->mat_nr + 1;
 
 		if (new_matnr != matnr) {
-			glEnd();
+			oldEnd();
 
 			setMaterial(userData, matnr = new_matnr, &gattribs);
 			DM_vertex_attributes_from_gpu(dm, &gattribs, &attribs);
 			DM_draw_attrib_vertex_uniforms(&attribs);
 
-			glBegin(GL_TRIANGLES);
+			oldBegin(GL_TRIANGLES);
 		}
 
 		/* skipping faces */
@@ -1198,13 +1199,13 @@ static void cdDM_drawMappedFacesMat(
 		/* smooth normal */
 		if (!smoothnormal) {
 			if (nors) {
-				glNormal3fv(nors[lt->poly]);
+				oldNormal3fv(nors[lt->poly]);
 			}
 			else {
 				/* TODO ideally a normal layer should always be available */
 				float nor[3];
 				normal_tri_v3(nor, mvert[vtri[0]].co, mvert[vtri[1]].co, mvert[vtri[2]].co);
-				glNormal3fv(nor);
+				oldNormal3fv(nor);
 			}
 		}
 		else if (lnors) {
@@ -1218,7 +1219,7 @@ static void cdDM_drawMappedFacesMat(
 		cddm_draw_attrib_vertex(&attribs, mvert, a, vtri[1], ltri[1], 1, ln2, smoothnormal);
 		cddm_draw_attrib_vertex(&attribs, mvert, a, vtri[2], ltri[2], 2, ln3, smoothnormal);
 	}
-	glEnd();
+	oldEnd();
 }
 
 static void cdDM_drawMappedEdges(DerivedMesh *dm, DMSetDrawOptions setDrawOptions, void *userData)
@@ -1228,7 +1229,7 @@ static void cdDM_drawMappedEdges(DerivedMesh *dm, DMSetDrawOptions setDrawOption
 	MEdge *edge = cddm->medge;
 	int i, orig, *index = DM_get_edge_data_layer(dm, CD_ORIGINDEX);
 
-	glBegin(GL_LINES);
+	oldBegin(GL_LINES);
 	for (i = 0; i < dm->numEdgeData; i++, edge++) {
 		if (index) {
 			orig = *index++;
@@ -1238,11 +1239,11 @@ static void cdDM_drawMappedEdges(DerivedMesh *dm, DMSetDrawOptions setDrawOption
 			orig = i;
 
 		if (!setDrawOptions || (setDrawOptions(userData, orig) != DM_DRAW_OPTION_SKIP)) {
-			glVertex3fv(vert[edge->v1].co);
-			glVertex3fv(vert[edge->v2].co);
+			oldVertex3fv(vert[edge->v1].co);
+			oldVertex3fv(vert[edge->v2].co);
 		}
 	}
-	glEnd();
+	oldEnd();
 }
 
 typedef struct FaceCount {

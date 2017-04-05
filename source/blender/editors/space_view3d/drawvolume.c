@@ -48,6 +48,7 @@
 
 #include "BIF_gl.h"
 
+#include "GPU_legacy_stubs.h"
 #include "GPU_shader.h"
 #include "GPU_texture.h"
 
@@ -514,12 +515,12 @@ static void draw_buffer(SmokeDomainSettings *sds, GPUShader *shader, const Volum
 
 	bind_shader(sds, shader, tex_spec, tex_tfunc, tex_coba, do_fire, slicer->min, ob_sizei, invsize);
 
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, NULL);
+	oldEnableClientState(GL_VERTEX_ARRAY);
+	oldVertexPointer(3, GL_FLOAT, 0, NULL);
 
 	glDrawArrays(GL_TRIANGLES, 0, num_points);
 
-	glDisableClientState(GL_VERTEX_ARRAY);
+	oldDisableClientState(GL_VERTEX_ARRAY);
 
 	unbind_shader(sds, tex_spec, tex_tfunc, tex_coba, do_fire);
 
@@ -833,16 +834,16 @@ void draw_smoke_velocity(SmokeDomainSettings *domain, float viewnormal[3])
 
 	glLineWidth(1.0f);
 
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, verts);
+	oldEnableClientState(GL_VERTEX_ARRAY);
+	oldVertexPointer(3, GL_FLOAT, 0, verts);
 
-	glEnableClientState(GL_COLOR_ARRAY);
-	glColorPointer(3, GL_FLOAT, 0, colors);
+	oldEnableClientState(GL_COLOR_ARRAY);
+	oldColorPointer(3, GL_FLOAT, 0, colors);
 
 	glDrawArrays(GL_LINES, 0, num_points);
 
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
+	oldDisableClientState(GL_VERTEX_ARRAY);
+	oldDisableClientState(GL_COLOR_ARRAY);
 
 	MEM_freeN(verts);
 	MEM_freeN(colors);

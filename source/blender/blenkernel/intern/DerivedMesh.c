@@ -76,6 +76,7 @@ static DerivedMesh *navmesh_dm_createNavMeshForVisualization(DerivedMesh *dm);
 #include "BLI_sys_types.h" /* for intptr_t support */
 
 #include "GPU_buffers.h"
+#include "GPU_legacy_stubs.h"
 #include "GPU_shader.h"
 #include "GPU_immediate.h"
 
@@ -3827,7 +3828,7 @@ void DM_draw_attrib_vertex(DMVertexAttribs *attribs, int a, int index, int vert,
 		const float *orco = (array) ? array[index] : zero;
 
 		if (attribs->orco.gl_texco)
-			glTexCoord3fv(orco);
+			oldTexCoord3fv(orco);
 		else
 			glVertexAttrib3fv(attribs->orco.gl_index, orco);
 	}
@@ -3845,7 +3846,7 @@ void DM_draw_attrib_vertex(DMVertexAttribs *attribs, int a, int index, int vert,
 		}
 
 		if (attribs->tface[b].gl_texco)
-			glTexCoord2fv(uv);
+			oldTexCoord2fv(uv);
 		else
 			glVertexAttrib2fv(attribs->tface[b].gl_index, uv);
 	}

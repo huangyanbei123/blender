@@ -77,6 +77,7 @@
 #include "GPU_buffers.h"
 #include "GPU_draw.h"
 #include "GPU_extensions.h"
+#include "GPU_legacy_stubs.h"
 #include "GPU_material.h"
 #include "GPU_matrix.h"
 #include "GPU_shader.h"
@@ -103,7 +104,7 @@ static void gpu_mcol(unsigned int ucol)
 {
 	/* mcol order is swapped */
 	const char *cp = (char *)&ucol;
-	glColor3ub(cp[3], cp[2], cp[1]);
+	oldColor3ub(cp[3], cp[2], cp[1]);
 }
 
 void GPU_render_text(
@@ -136,7 +137,7 @@ void GPU_render_text(
 		if (mtexpoly->mode & TF_OBCOL)
 			col = NULL;
 		else if (!col)
-			glColor3f(1.0f, 1.0f, 1.0f);
+			oldColor3f(1.0f, 1.0f, 1.0f);
 
 		gpuPushMatrix();
 
@@ -183,32 +184,32 @@ void GPU_render_text(
 			uv[2][0] = (uv_quad[2][0] - centerx) * sizex + transx;
 			uv[2][1] = (uv_quad[2][1] - centery) * sizey + transy;
 
-			glBegin(GL_POLYGON);
+			oldBegin(GL_POLYGON);
 			if (glattrib >= 0) glVertexAttrib2fv(glattrib, uv[0]);
-			else glTexCoord2fv(uv[0]);
+			else oldTexCoord2fv(uv[0]);
 			if (col) gpu_mcol(col[0]);
-			glVertex3f(sizex * v1[0] + movex, sizey * v1[1] + movey, v1[2]);
+			oldVertex3f(sizex * v1[0] + movex, sizey * v1[1] + movey, v1[2]);
 
 			if (glattrib >= 0) glVertexAttrib2fv(glattrib, uv[1]);
-			else glTexCoord2fv(uv[1]);
+			else oldTexCoord2fv(uv[1]);
 			if (col) gpu_mcol(col[1]);
-			glVertex3f(sizex * v2[0] + movex, sizey * v2[1] + movey, v2[2]);
+			oldVertex3f(sizex * v2[0] + movex, sizey * v2[1] + movey, v2[2]);
 
 			if (glattrib >= 0) glVertexAttrib2fv(glattrib, uv[2]);
-			else glTexCoord2fv(uv[2]);
+			else oldTexCoord2fv(uv[2]);
 			if (col) gpu_mcol(col[2]);
-			glVertex3f(sizex * v3[0] + movex, sizey * v3[1] + movey, v3[2]);
+			oldVertex3f(sizex * v3[0] + movex, sizey * v3[1] + movey, v3[2]);
 
 			if (v4) {
 				uv[3][0] = (uv_quad[3][0] - centerx) * sizex + transx;
 				uv[3][1] = (uv_quad[3][1] - centery) * sizey + transy;
 
 				if (glattrib >= 0) glVertexAttrib2fv(glattrib, uv[3]);
-				else glTexCoord2fv(uv[3]);
+				else oldTexCoord2fv(uv[3]);
 				if (col) gpu_mcol(col[3]);
-				glVertex3f(sizex * v4[0] + movex, sizey * v4[1] + movey, v4[2]);
+				oldVertex3f(sizex * v4[0] + movex, sizey * v4[1] + movey, v4[2]);
 			}
-			glEnd();
+			oldEnd();
 
 			gpuTranslate2f(advance, 0.0f);
 			line_start -= advance; /* so we can go back to the start of the line */
@@ -429,24 +430,24 @@ void GPU_clear_tpage(bool force)
 	GTS.alphablend = -1;
 
 	glDisable(GL_BLEND);
-	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_TEXTURE_GEN_S);
-	glDisable(GL_TEXTURE_GEN_T);
-	glDisable(GL_ALPHA_TEST);
+	oldDisable(GL_TEXTURE_2D);
+	oldDisable(GL_TEXTURE_GEN_S);
+	oldDisable(GL_TEXTURE_GEN_T);
+	oldDisable(GL_ALPHA_TEST);
 }
 
 static void gpu_set_alpha_blend(GPUBlendMode alphablend)
 {
 	if (alphablend == GPU_BLEND_SOLID) {
 		glDisable(GL_BLEND);
-		glDisable(GL_ALPHA_TEST);
+		oldDisable(GL_ALPHA_TEST);
 		glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 	else if (alphablend == GPU_BLEND_ADD) {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_ONE);
-		glDisable(GL_ALPHA_TEST);
+		oldDisable(GL_ALPHA_TEST);
 		glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 	}
 	else if (ELEM(alphablend, GPU_BLEND_ALPHA, GPU_BLEND_ALPHA_SORT)) {
@@ -461,22 +462,22 @@ static void gpu_set_alpha_blend(GPUBlendMode alphablend)
 
 		/* added after 2.45 to clip alpha */
 		if (U.glalphaclip == 1.0f) {
-			glDisable(GL_ALPHA_TEST);
+			oldDisable(GL_ALPHA_TEST);
 		}
 		else {
-			glEnable(GL_ALPHA_TEST);
-			glAlphaFunc(GL_GREATER, U.glalphaclip);
+			oldEnable(GL_ALPHA_TEST);
+			oldAlphaFunc(GL_GREATER, U.glalphaclip);
 		}
 	}
 	else if (alphablend == GPU_BLEND_CLIP) {
 		glDisable(GL_BLEND);
 		glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.5f);
+		oldEnable(GL_ALPHA_TEST);
+		oldAlphaFunc(GL_GREATER, 0.5f);
 	}
 	else if (alphablend == GPU_BLEND_ALPHA_TO_COVERAGE) {
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, U.glalphaclip);
+		oldEnable(GL_ALPHA_TEST);
+		oldAlphaFunc(GL_GREATER, U.glalphaclip);
 		glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 	}
 }
@@ -495,16 +496,16 @@ static void gpu_verify_reflection(Image *ima)
 {
 	if (ima && (ima->flag & IMA_REFLECT)) {
 		/* enable reflection mapping */
-		glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-		glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+		oldTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+		oldTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
 
-		glEnable(GL_TEXTURE_GEN_S);
-		glEnable(GL_TEXTURE_GEN_T);
+		oldEnable(GL_TEXTURE_GEN_S);
+		oldEnable(GL_TEXTURE_GEN_T);
 	}
 	else {
 		/* disable reflection mapping */
-		glDisable(GL_TEXTURE_GEN_S);
-		glDisable(GL_TEXTURE_GEN_T);
+		oldDisable(GL_TEXTURE_GEN_S);
+		oldDisable(GL_TEXTURE_GEN_T);
 	}
 }
 
@@ -1971,7 +1972,7 @@ int GPU_object_material_bind(int nr, void *attribs)
 			}
 
 			if (GMS.use_matcaps)
-				glColor3f(1.0f, 1.0f, 1.0f);
+				oldColor3f(1.0f, 1.0f, 1.0f);
 		}
 		else {
 			/* or do fixed function opengl material */
@@ -2260,22 +2261,21 @@ void GPU_state_init(void)
 
 	GPU_disable_program_point_size();
 
-	/* TODO: remove this when we switch to core profile */
-	glEnable(GL_POINT_SPRITE);
+	oldEnable(GL_POINT_SPRITE);
 
 
 	glDepthFunc(GL_LEQUAL);
 	/* scaling matrices */
 	glEnable(GL_NORMALIZE);
 
-	glDisable(GL_ALPHA_TEST);
+	oldDisable(GL_ALPHA_TEST);
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_LOGIC_OP);
 	glDisable(GL_STENCIL_TEST);
-	glDisable(GL_TEXTURE_1D);
-	glDisable(GL_TEXTURE_2D);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	oldDisable(GL_TEXTURE_1D);
+	oldDisable(GL_TEXTURE_2D);
+	oldTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
 	glDepthRange(0.0, 1.0);
 
@@ -2411,7 +2411,7 @@ static unsigned int index_to_framebuffer(int index)
 void GPU_select_index_set(int index)
 {
 	const int col = index_to_framebuffer(index);
-	glColor3ub(( (col)        & 0xFF),
+	oldColor3ub(( (col)        & 0xFF),
 	           (((col) >>  8) & 0xFF),
 	           (((col) >> 16) & 0xFF));
 }

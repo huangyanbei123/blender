@@ -50,6 +50,7 @@
 
 #include "GPU_basic_shader.h"
 #include "GPU_immediate.h"
+#include "GPU_legacy_stubs.h"
 #include "GPU_matrix.h"
 
 #include "UI_interface.h"
@@ -59,15 +60,15 @@
 void setlinestyle(int nr)
 {
 	if (nr == 0) {
-		glDisable(GL_LINE_STIPPLE);
+		oldDisable(GL_LINE_STIPPLE);
 	}
 	else {
 		
-		glEnable(GL_LINE_STIPPLE);
+		oldEnable(GL_LINE_STIPPLE);
 		if (U.pixelsize > 1.0f)
-			glLineStipple(nr, 0xCCCC);
+			oldLineStipple(nr, 0xCCCC);
 		else
-			glLineStipple(nr, 0xAAAA);
+			oldLineStipple(nr, 0xAAAA);
 	}
 }
 
@@ -105,12 +106,12 @@ void glaRasterPosSafe2f(float x, float y, float known_good_x, float known_good_y
 	 * position (ignoring potential (real) overflow
 	 * issues).
 	 */
-	glRasterPos2f(known_good_x, known_good_y);
+	oldRasterPos2f(known_good_x, known_good_y);
 
 	/* Now shift the raster position to where we wanted
 	 * it in the first place using the glBitmap trick.
 	 */
-	glBitmap(0, 0, 0, 0, x - known_good_x, y - known_good_y, &dummy);
+	oldBitmap(0, 0, 0, 0, x - known_good_x, y - known_good_y, &dummy);
 }
 
 static int get_cached_work_texture(int *r_w, int *r_h)
@@ -679,7 +680,7 @@ void glaDrawImBuf_glsl_ctx(const bContext *C, ImBuf *ibuf, float x, float y, int
 void cpack(unsigned int x)
 {
 	/* DEPRECATED: use imm_cpack */
-	glColor3ub(( (x)        & 0xFF),
+	oldColor3ub(( (x)        & 0xFF),
 	           (((x) >>  8) & 0xFF),
 	           (((x) >> 16) & 0xFF));
 }

@@ -98,6 +98,7 @@
 #include "GPU_draw.h"
 #include "GPU_framebuffer.h"
 #include "GPU_lamp.h"
+#include "GPU_legacy_stubs.h"
 #include "GPU_material.h"
 #include "GPU_compositing.h"
 #include "GPU_extensions.h"
@@ -131,13 +132,13 @@ static void view3d_draw_clipping(RegionView3D *rv3d)
 		/* fill in zero alpha for rendering & re-projection [#31530] */
 		unsigned char col[4];
 		UI_GetThemeColor4ubv(TH_V3D_CLIPPING_BORDER, col);
-		glColor4ubv(col);
+		oldColor4ubv(col);
 
 		glEnable(GL_BLEND);
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glVertexPointer(3, GL_FLOAT, 0, bb->vec);
+		oldEnableClientState(GL_VERTEX_ARRAY);
+		oldVertexPointer(3, GL_FLOAT, 0, bb->vec);
 		glDrawElements(GL_QUADS, sizeof(clipping_index) / sizeof(unsigned int), GL_UNSIGNED_INT, clipping_index);
-		glDisableClientState(GL_VERTEX_ARRAY);
+		oldDisableClientState(GL_VERTEX_ARRAY);
 		glDisable(GL_BLEND);
 	}
 }
@@ -149,7 +150,7 @@ void ED_view3d_clipping_set(RegionView3D *rv3d)
 
 	for (unsigned a = 0; a < tot; a++) {
 		copy_v4db_v4fl(plane, rv3d->clip[a]);
-		glClipPlane(GL_CLIP_PLANE0 + a, plane);
+		oldClipPlane(GL_CLIP_PLANE0 + a, plane);
 		glEnable(GL_CLIP_PLANE0 + a);
 	}
 }
@@ -1026,7 +1027,7 @@ static void draw_dupli_objects_color(
 		
 		/* should move outside the loop but possible color is set in draw_object still */
 		if ((dflag & DRAW_CONSTCOLOR) == 0) {
-			glColor3ubv(color_rgb);
+			oldColor3ubv(color_rgb);
 		}
 		
 		if ((bb_tmp = BKE_object_boundbox_get(dob->ob))) {

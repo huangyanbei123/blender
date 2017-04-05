@@ -61,6 +61,7 @@
 
 #include "GPU_draw.h"
 #include "GPU_material.h"
+#include "GPU_legacy_stubs.h"
 #include "GPU_basic_shader.h"
 #include "GPU_shader.h"
 #include "GPU_matrix.h"
@@ -193,7 +194,7 @@ void draw_mesh_face_select(RegionView3D *rv3d, Mesh *me, DerivedMesh *dm, bool d
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		/* dull unselected faces so as not to get in the way of seeing color */
-		glColor4ub(96, 96, 96, 64);
+		oldColor4ub(96, 96, 96, 64);
 		dm->drawMappedFaces(dm, draw_mesh_face_select__drawFaceOptsInv, NULL, NULL, (void *)me, DM_DRAW_SKIP_HIDDEN);
 		glDisable(GL_BLEND);
 	}
@@ -201,7 +202,7 @@ void draw_mesh_face_select(RegionView3D *rv3d, Mesh *me, DerivedMesh *dm, bool d
 	ED_view3d_polygon_offset(rv3d, 1.0);
 
 	/* Draw Stippled Outline for selected faces */
-	glColor3ub(255, 255, 255);
+	oldColor3ub(255, 255, 255);
 	setlinestyle(1);
 	dm->drawMappedEdges(dm, draw_mesh_face_select__setSelectOpts, &data);
 	setlinestyle(0);
@@ -323,39 +324,39 @@ static bool set_draw_settings_cached(
 			if (texpaint) {
 				c_badtex = false;
 				if (GPU_verify_image(ima, NULL, GL_TEXTURE_2D, 0, 1, 0, false)) {
-					glEnable(GL_TEXTURE_2D);
-					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
-					glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_TEXTURE);
-					glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_PRIMARY_COLOR);
-					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-					glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);
+					oldEnable(GL_TEXTURE_2D);
+					oldTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+					oldTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+					oldTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_TEXTURE);
+					oldTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_PRIMARY_COLOR);
+					oldTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+					oldTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE);
 					
 					glActiveTexture(GL_TEXTURE1);
-					glEnable(GL_TEXTURE_2D);
-					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
-					glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_PREVIOUS);
-					glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_PRIMARY_COLOR);
-					glTexEnvi(GL_TEXTURE_ENV, GL_SRC2_RGB, GL_PREVIOUS);
-					glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_ALPHA);
-					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-					glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_PREVIOUS);
+					oldEnable(GL_TEXTURE_2D);
+					oldTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+					oldTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
+					oldTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_PREVIOUS);
+					oldTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_PRIMARY_COLOR);
+					oldTexEnvi(GL_TEXTURE_ENV, GL_SRC2_RGB, GL_PREVIOUS);
+					oldTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_ALPHA);
+					oldTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+					oldTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_PREVIOUS);
 					glBindTexture(GL_TEXTURE_2D, ima->bindcode[TEXTARGET_TEXTURE_2D]);
 					glActiveTexture(GL_TEXTURE0);					
 				}
 				else {
 					glActiveTexture(GL_TEXTURE1);
-					glDisable(GL_TEXTURE_2D);
+					oldDisable(GL_TEXTURE_2D);
 					glBindTexture(GL_TEXTURE_2D, 0);
-					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+					oldTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 					glActiveTexture(GL_TEXTURE0);									
 
 					c_badtex = true;
 					GPU_clear_tpage(true);
-					glDisable(GL_TEXTURE_2D);
+					oldDisable(GL_TEXTURE_2D);
 					glBindTexture(GL_TEXTURE_2D, 0);
-					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+					oldTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 				}
 			}
 			else {
@@ -461,36 +462,36 @@ static void draw_textured_begin(Scene *scene, View3D *v3d, RegionView3D *rv3d, O
 	 * in new texpaint code. The better solution here would be to support GLSL */
 	if (Gtexdraw.is_texpaint) {			
 		glActiveTexture(GL_TEXTURE1);
-		glEnable(GL_TEXTURE_2D);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_PREVIOUS);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_PRIMARY_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SRC2_RGB, GL_PREVIOUS);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_ALPHA);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_PREVIOUS);
+		oldEnable(GL_TEXTURE_2D);
+		oldTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+		oldTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
+		oldTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_PREVIOUS);
+		oldTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_PRIMARY_COLOR);
+		oldTexEnvi(GL_TEXTURE_ENV, GL_SRC2_RGB, GL_PREVIOUS);
+		oldTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_ALPHA);
+		oldTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+		oldTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_PREVIOUS);
 		
 		/* load the stencil texture here */
 		if (Gtexdraw.stencil != NULL) {
 			glActiveTexture(GL_TEXTURE2);
 			if (GPU_verify_image(Gtexdraw.stencil, NULL, GL_TEXTURE_2D, false, false, false, false)) {
 				float col[4] = {imapaint->stencil_col[0], imapaint->stencil_col[1], imapaint->stencil_col[2], 1.0f};
-				glEnable(GL_TEXTURE_2D);
-				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-				glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
-				glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_PREVIOUS);
-				glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
-				glTexEnvi(GL_TEXTURE_ENV, GL_SRC2_RGB, GL_TEXTURE);
-				glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE);
-				glTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_PREVIOUS);
-				glTexEnvi(GL_TEXTURE_ENV, GL_SRC1_ALPHA, GL_TEXTURE);
-				glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, col);
+				oldEnable(GL_TEXTURE_2D);
+				oldTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+				oldTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
+				oldTexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB, GL_PREVIOUS);
+				oldTexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB, GL_CONSTANT);
+				oldTexEnvi(GL_TEXTURE_ENV, GL_SRC2_RGB, GL_TEXTURE);
+				oldTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE);
+				oldTexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_PREVIOUS);
+				oldTexEnvi(GL_TEXTURE_ENV, GL_SRC1_ALPHA, GL_TEXTURE);
+				oldTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, col);
 				if ((imapaint->flag & IMAGEPAINT_PROJECT_LAYER_STENCIL_INV) == 0) {
-					glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_ONE_MINUS_SRC_COLOR);
+					oldTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_ONE_MINUS_SRC_COLOR);
 				}
 				else {
-					glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
+					oldTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
 				}
 			}
 		}
@@ -511,20 +512,20 @@ static void draw_textured_end(void)
 {
 	if (Gtexdraw.ob->mode & OB_MODE_TEXTURE_PAINT) {
 		glActiveTexture(GL_TEXTURE1);
-		glDisable(GL_TEXTURE_2D);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		oldDisable(GL_TEXTURE_2D);
+		oldTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
+		oldTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		if (Gtexdraw.stencil != NULL) {
 			glActiveTexture(GL_TEXTURE2);
-			glDisable(GL_TEXTURE_2D);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
-			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+			oldDisable(GL_TEXTURE_2D);
+			oldTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
+			oldTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}		
 		glActiveTexture(GL_TEXTURE0);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		oldTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		/* manual reset, since we don't use tpage */
 		glBindTexture(GL_TEXTURE_2D, 0);
 		/* force switch off textures */
@@ -564,28 +565,28 @@ static DMDrawOption draw_tface__set_draw_legacy(MTexPoly *mtexpoly, const bool h
 	invalidtexture = set_draw_settings_cached(0, mtexpoly, ma, &Gtexdraw);
 
 	if (mtexpoly && invalidtexture) {
-		glColor3ub(0xFF, 0x00, 0xFF);
+		oldColor3ub(0xFF, 0x00, 0xFF);
 		return DM_DRAW_OPTION_NO_MCOL; /* Don't set color */
 	}
 	else if (!has_mcol) {
 		if (mtexpoly) {
-			glColor3f(1.0, 1.0, 1.0);
+			oldColor3f(1.0, 1.0, 1.0);
 		}
 		else {
 			if (ma) {
 				if (ma->shade_flag & MA_OBCOLOR) {
-					glColor3ubv(Gtexdraw.obcol);
+					oldColor3ubv(Gtexdraw.obcol);
 				}
 				else {
 					float col[3];
 					if (Gtexdraw.color_profile) linearrgb_to_srgb_v3_v3(col, &ma->r);
 					else copy_v3_v3(col, &ma->r);
 
-					glColor3fv(col);
+					oldColor3fv(col);
 				}
 			}
 			else {
-				glColor3f(1.0, 1.0, 1.0);
+				oldColor3f(1.0, 1.0, 1.0);
 			}
 		}
 		return DM_DRAW_OPTION_NORMAL; /* normal drawing (no mcols anyway, no need to turn off) */
@@ -906,7 +907,7 @@ static void draw_mesh_text(Scene *scene, SceneLayer *sl, Object *ob, int glsl)
 
 				normal_tri_v3(nor, v_quad[0], v_quad[1], v_quad[2]);
 
-				glNormal3fv(nor);
+				oldNormal3fv(nor);
 			}
 
 			GPU_render_text(
@@ -959,7 +960,7 @@ static void draw_mesh_textured_old(Scene *scene, SceneLayer *sl, View3D *v3d, Re
 	/* draw the textured mesh */
 	draw_textured_begin(scene, v3d, rv3d, ob);
 
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	oldColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	if (ob->mode & OB_MODE_EDIT) {
 		drawEMTFMapped_userData data;
@@ -1135,7 +1136,7 @@ static void tex_mat_set_texture_cb(void *userData, int mat_nr, void *attribs)
 	GPU_basic_shader_bind(GPU_SHADER_USE_COLOR);
 
 	if (data->shadeless) {
-		glColor3f(1.0f, 1.0f, 1.0f);
+		oldColor3f(1.0f, 1.0f, 1.0f);
 		memset(gattribs, 0, sizeof(*gattribs));
 	}
 	else {
@@ -1302,7 +1303,7 @@ void draw_mesh_paint_vcolor_faces(DerivedMesh *dm, const bool use_light,
 		                    DM_DRAW_USE_COLORS | flags);
 	}
 	else {
-		glColor3f(1.0f, 1.0f, 1.0f);
+		oldColor3f(1.0f, 1.0f, 1.0f);
 		dm->drawMappedFaces(dm, facemask_cb, setMaterial, NULL, user_data, flags);
 	}
 
@@ -1330,7 +1331,7 @@ void draw_mesh_paint_weight_edges(RegionView3D *rv3d, DerivedMesh *dm,
 		glEnable(GL_BLEND);
 	}
 
-	glColor4ub(255, 255, 255, 96);
+	oldColor4ub(255, 255, 255, 96);
 	GPU_basic_shader_bind_enable(GPU_SHADER_LINE | GPU_SHADER_STIPPLE);
 	GPU_basic_shader_line_stipple(1, 0xAAAA);
 

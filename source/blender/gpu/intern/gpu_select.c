@@ -34,6 +34,7 @@
 #include "GPU_select.h"
 #include "GPU_extensions.h"
 #include "GPU_glew.h"
+#include "GPU_legacy_stubs.h"
 
 #include "MEM_guardedalloc.h"
 
@@ -93,10 +94,10 @@ void GPU_select_begin(unsigned int *buffer, unsigned int bufsize, const rcti *in
 		case ALGO_GL_LEGACY:
 		{
 			g_select_state.use_cache = false;
-			glSelectBuffer(bufsize, (GLuint *)buffer);
-			glRenderMode(GL_SELECT);
-			glInitNames();
-			glPushName(-1);
+			oldSelectBuffer(bufsize, (GLuint *)buffer);
+			oldRenderMode(GL_SELECT);
+			oldInitNames();
+			oldPushName(-1);
 			break;
 		}
 		case ALGO_GL_QUERY:
@@ -129,7 +130,7 @@ bool GPU_select_load_id(unsigned int id)
 	switch (g_select_state.algorithm) {
 		case ALGO_GL_LEGACY:
 		{
-			glLoadName(id);
+			oldLoadName(id);
 			return true;
 		}
 		case ALGO_GL_QUERY:
@@ -155,8 +156,8 @@ unsigned int GPU_select_end(void)
 	switch (g_select_state.algorithm) {
 		case ALGO_GL_LEGACY:
 		{
-			glPopName();
-			hits = glRenderMode(GL_RENDER);
+			oldPopName();
+			hits = oldRenderMode(GL_RENDER);
 			break;
 		}
 		case ALGO_GL_QUERY:

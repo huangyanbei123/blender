@@ -35,6 +35,7 @@
 
 #include "GPU_draw.h"
 #include "GPU_immediate.h"
+#include "GPU_legacy_stubs.h"
 
 #include "BLI_blenlib.h"
 #include "BLI_utildefines.h"
@@ -1025,7 +1026,7 @@ static void icon_draw_texture(
 	y2 = (iy + ih) * icongltex.invh;
 
 	/* sharper downscaling, has no effect when scale matches with a mip level */
-	glTexEnvf(GL_TEXTURE_FILTER_CONTROL, GL_TEXTURE_LOD_BIAS, -0.5f);
+	oldTexEnvf(GL_TEXTURE_FILTER_CONTROL, GL_TEXTURE_LOD_BIAS, -0.5f);
 
 	glBindTexture(GL_TEXTURE_2D, icongltex.id);
 	VertexFormat *format = immVertexFormat();
@@ -1054,7 +1055,7 @@ static void icon_draw_texture(
 
 	immUnbindProgram();
 
-	glTexEnvf(GL_TEXTURE_FILTER_CONTROL, GL_TEXTURE_LOD_BIAS, 0.0f);
+	oldTexEnvf(GL_TEXTURE_FILTER_CONTROL, GL_TEXTURE_LOD_BIAS, 0.0f);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
