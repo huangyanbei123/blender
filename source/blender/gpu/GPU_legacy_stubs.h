@@ -94,7 +94,7 @@ static inline void oldBegin(GLenum mode)
 
 static inline void oldBitmap(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove, const GLubyte *bitmap)
 {
-	GL_RET_VOID(glBitmap, width, height, xorig, yorig, xmove, ymove, bitmap);
+	GL_RET_VOID(Bitmap, width, height, xorig, yorig, xmove, ymove, bitmap);
 }
 
 static inline void oldClipPlane(GLenum plane, const GLdouble *equation)
@@ -114,7 +114,7 @@ static inline void oldColor3fv(const GLfloat *v)
 
 static inline void oldColor3ub(GLubyte red, GLubyte green, GLubyte blue)
 {
-	GL_RET_VOID(oldColor3ub, red, green, blue);
+	GL_RET_VOID(Color3ub, red, green, blue);
 }
 
 static inline void oldColor3ubv(const GLubyte *v)
