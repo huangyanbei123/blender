@@ -244,7 +244,7 @@ option(WITH_OPENCOLORIO   "Enable OpenColorIO color management" ${_init_OPENCOLO
 
 option(WITH_CLAY_ENGINE    "Enable New Clay engine (Breaks Mac and Intel compatibility)" ON)
 
-option(WITH_LEGACY_OPENGL  "Enable build of legacy OpenGL" ON)
+option(WITH_LEGACY_OPENGL  "Enable build of legacy OpenGL" OFF)
 
 # Compositor
 option(WITH_COMPOSITOR         "Enable the tile based nodal compositor" ON)
